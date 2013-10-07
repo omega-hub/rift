@@ -169,7 +169,7 @@ void OculusRiftService::initialize()
 	// Set default lens offset parameter
 	myLensOffset =  0.0f;
 
-	myScaleFactor = 0.8;
+	myScaleFactor = 0.8f;
 	myAspectRatio = 1.6f;
 
 	// Initialize the Oculus Rift
@@ -288,7 +288,7 @@ void OculusRiftService::stop()
 void OculusRiftService::initializeGraphics(Camera* cam, const DrawContext& context)
 {
 	myViewportSize = Vector2f(
-		context.tile->pixelSize[0] *2, context.tile->pixelSize[1]*2);
+		context.tile->pixelSize[0] * 2, context.tile->pixelSize[1] * 2);
 
 	Renderer* r = context.renderer;
 
@@ -309,6 +309,7 @@ void OculusRiftService::initializeGraphics(Camera* cam, const DrawContext& conte
 		DrawInterface::FragmentShader);
 
 	myPostprocessProgram = di->createProgram(vs, fs);
+	if(oglError) return;
 
 	myLensCenterUniform = glGetUniformLocation(myPostprocessProgram, "LensCenter");
 	myScreenCenterUniform = glGetUniformLocation(myPostprocessProgram, "ScreenCenter");
@@ -328,6 +329,9 @@ void OculusRiftService::beginDraw(Camera* cam, DrawContext& context)
 	{
 		if(context.task == DrawContext::SceneDrawTask)
 		{
+			// Create a render target if we have not done it yet.
+			if(!myInitialized) initializeGraphics(cam, context);
+
 			if(context.eye == DrawContext::EyeLeft)
 			{
 				context.viewport.min[0] = 0;
@@ -343,9 +347,6 @@ void OculusRiftService::beginDraw(Camera* cam, DrawContext& context)
 				context.viewport.max[1] = myViewportSize[1];
 			}
 			
-			// Create a render target if we have not done it yet.
-			if(!myInitialized) initializeGraphics(cam, context);
-
 			myRenderTarget->bind();
 		}
 		// After all overlay rendering is done we have our full side-by-side
@@ -355,6 +356,7 @@ void OculusRiftService::beginDraw(Camera* cam, DrawContext& context)
 			context.eye == DrawContext::EyeCyclop)
 		{
 			DrawInterface* di = context.renderer->getRenderer();
+			di->beginDraw2D(context);
 
 			beginEyeDraw();
 
@@ -391,6 +393,8 @@ void OculusRiftService::beginDraw(Camera* cam, DrawContext& context)
 
 			endEyeDraw();
 
+			di->endDraw();
+
 			myRenderTarget->clear();
 		}
 	}
@@ -421,8 +425,10 @@ void OculusRiftService::beginEyeDraw()
 	glLoadIdentity();
 
 	glUseProgram(myPostprocessProgram);
+	if(oglError) return;
 
 	myRenderTexture->bind(GpuContext::TextureUnit0);
+	if(oglError) return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -449,6 +455,7 @@ void OculusRiftService::drawEyeQuad(
 void OculusRiftService::endEyeDraw()
 {
 	myRenderTexture->unbind();
+	if(oglError) return;
 
 	glUseProgram(0);
 
