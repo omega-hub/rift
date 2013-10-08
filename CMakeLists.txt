@@ -13,13 +13,13 @@ if(NOT RIFT_EMULATE)
 	include_directories(${OVR_INCLUDE_DIR})
 endif()
 
-	if(APPLE)
-	  find_library(APP_SERVICES_LIBRARY ApplicationServices)
-	  find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
-	  find_library(IOKIT_LIBRARY IOKit)
-	  mark_as_advanced(APP_SERVICES_LIBRARY CORE_FOUNDATION_LIBRARY IOKIT_LIBRARY)
-	  set(OVR_EXTRA_LIBS ${APP_SERVICES_LIBRARY} ${CORE_FOUNDATION_LIBRARY} ${IOKIT_LIBRARY} ${COCOA_LIBRARY})
-	   endif (APPLE)
+if(APPLE)
+	find_library(APP_SERVICES_LIBRARY ApplicationServices)
+	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+	find_library(IOKIT_LIBRARY IOKit)
+	mark_as_advanced(APP_SERVICES_LIBRARY CORE_FOUNDATION_LIBRARY IOKIT_LIBRARY)
+	set(OVR_EXTRA_LIBS ${APP_SERVICES_LIBRARY} ${CORE_FOUNDATION_LIBRARY} ${IOKIT_LIBRARY} ${COCOA_LIBRARY})
+endif (APPLE)
 	   
 	# Set module name and source files here
 add_library(${MODULE_NAME} SHARED 
@@ -43,6 +43,8 @@ if(NOT RIFT_EMULATE)
 	  set_target_properties(${MODULE_NAME} PROPERTIES LINK_FLAGS "-ludev -lXinerama")
 	endif( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
 endif()
+
+install(FILES ./rift.cfg DESTINATION omegalib/rift)
 
 #------------------------------------------------------------------------------
 # DO NOT MODIFY ANYTHING BELOW AFTER THIS LINE
