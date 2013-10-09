@@ -22,7 +22,7 @@ if(APPLE)
 endif (APPLE)
 	   
 	# Set module name and source files here
-add_library(${MODULE_NAME} SHARED 
+add_library(${MODULE_NAME} MODULE 
 	rift.cpp)
 
 # Set the module library dependencies here
@@ -31,7 +31,7 @@ target_link_libraries(${MODULE_NAME}
 
 if(NOT RIFT_EMULATE)
 	target_link_libraries(${MODULE_NAME}
-		${OVR_LIB})
+		${OVR_LIB} ${OVR_EXTRA_LIBS})
 		
 	if(WIN32)
 		# Needed for time functions (timeGetTime etc.)
