@@ -1,3 +1,5 @@
+**DEPRECATED** use the oculus module: https://github.com/omega-hub/oculus
+
 # rift - Oculus Rift support for omegalib
 This module adds Oculus Rift support to omegalib, reading sensor data from the device and rendering using a post-processing shader that corrects for the Oculs Rift lens distortion and chromatic aberration.
 
